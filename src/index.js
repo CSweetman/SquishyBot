@@ -34,7 +34,7 @@ client.on('message', async(msg) =>{
         command = (spaceIndex == -1) ? command : command.substring(0,spaceIndex)
 
 
-        const regex = /^((\d+y{1})?(\d+mo{1})?(\d+w{1})?(\d+d{1})?(\d+h{1})?(\d+m{1})?(\d+s{1})?)$/g
+        const regex = /^((\d+d{1})?(\d+h{1})?(\d+m{1})?(\d+s{1})?)$/g
         //command = regex.exec(command)
         command = command.match(regex)[0]
         console.log(command)
@@ -42,9 +42,9 @@ client.on('message', async(msg) =>{
             try{
                 let tstamp = splitTime(command)
                 console.log(tstamp);
-                /*await db.query(
-                    `INSERT INTO Reminders(description, time) VALUES ('${description}', date_add(CURRENT_TIMESTAMP,interval '1:45' hour_minute))`
-                )*/
+                await db.query(
+                    `INSERT INTO Reminders(description, time) VALUES ('${description}', date_add(CURRENT_TIMESTAMP,interval '${tstamp}' second))`
+                )
             } catch(err){
                 console.log(err)
             }
@@ -56,28 +56,18 @@ client.on('message', async(msg) =>{
     }
 });
 // login to Discord with your app's token
-/*
-function toMinutes(inString){
-    let minutes = 0
-    minutes += command.match(/(\d+m)+/g).slice(0,-1);
-}
-*/
+
 
 const splitTime = (string) => {
-    console.log(string);
-    const arr = [];
-    const regexVar = ["y", "mo", "w", "d", "h", "m", "s"]
-    regexVar.forEach(variable =>{
-        let regex = new RegExp("\\d+" + variable + "{1}","g")
-        let tStampComponent = string.match(regex)
-        //console.log(tStampComponent)
-        if(tStampComponent)
-            arr.push(tStampComponent[0].slice(0,-variable.length))
-        else
-            arr.push(0)
-    })
-    console.log(arr)
-    return arr.join(":")
+    const secMetrics = [86400, 3600, 60, 1]
+    let sec = 0
+    console.log(string)
+    string = string.replace(/[A-Za-z]+/g, " ").slice(0,string.length-1).split(' ').map(Number);
+    console.log(string)
+    for(let i=0; i <secMetrics.length; i++){
+        sec += string[i] * secMetrics[i]
+    }
+    return sec
 };
 
 
